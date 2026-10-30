@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Relief",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "ChatGPT 页面陪伴提醒，并可快速发送到固定对话。",
   "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": ["https://chatgpt.com/*", "https://chat.openai.com/*"],

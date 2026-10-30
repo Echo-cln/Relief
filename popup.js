@@ -1,5 +1,5 @@
 const status=document.getElementById('status');
-const EXPECTED_CONTENT_VERSION='1.0.6';
+const EXPECTED_CONTENT_VERSION='1.0.7';
 function reportResult(response,command){
   if(response?.version!==EXPECTED_CONTENT_VERSION){status.textContent='当前页面还没有加载最新 Relief。请先刷新 ChatGPT 页面，再打开 Relief。';return}
   if(!response.ok||!response.visible){status.textContent='页面收到操作，但界面没有显示出来。请刷新 ChatGPT 页面后重试。';return}
