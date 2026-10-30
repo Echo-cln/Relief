@@ -1,5 +1,6 @@
 (()=>{
   if(document.getElementById('xiaoqi-companion-host'))return;
+  const CONTENT_VERSION='1.0.6';
   const host=document.createElement('div');host.id='xiaoqi-companion-host';document.documentElement.append(host);
   const shadow=host.attachShadow({mode:'open'});
   const assets={pets:'assets/pet-pair-idle.png',pairAvatar:'assets/pet-pair-avatar.png',sun:'assets/sun-mascot.png',star:'assets/mascot-star.png',cloud:'assets/mascot-cloud.png',moon:'assets/mascot-moon.png',mobile:'assets/mascot-mobile.png'};
@@ -158,7 +159,7 @@
   }
   chrome.runtime.onMessage.addListener((message,sender,sendResponse)=>{
     if(message?.type==='relief-insert-daily-qa'){forwardQuickMessage(message).then(sendResponse).catch(()=>sendResponse({ok:false,retryable:true,message:'发送时遇到页面错误。'}));return true}
-    if(message?.type!=='xiaoqi-command')return;initialization.then(()=>{if(message.command==='show')showPet();else if(message.command==='settings'){showPet(false);openSettings()}sendResponse({ok:true})});return true
+    if(message?.type!=='xiaoqi-command')return;initialization.then(()=>{let visible=false;if(message.command==='show'){showPet();const rect=ui.petArea.getBoundingClientRect();visible=host.isConnected&&getComputedStyle(host).display!=='none'&&rect.width>0&&rect.height>0}else if(message.command==='settings'){showPet(false);openSettings();const rect=ui.settings.getBoundingClientRect();visible=ui.settings.classList.contains('show')&&getComputedStyle(ui.settings).display!=='none'&&rect.width>0&&rect.height>0}sendResponse({ok:visible,visible,version:CONTENT_VERSION})}).catch(()=>sendResponse({ok:false,visible:false,version:CONTENT_VERSION}));return true
   });
   initialization=chrome.storage.local.get(defaults).then(values=>{prefs={...defaults,...values};prefs.water=safeNumber(prefs.water,1,240,45);prefs.rest=safeNumber(prefs.rest,1,240,50);prefs.snooze=safeNumber(prefs.snooze,1,120,10);if(!choices.some(([id])=>id===prefs.mascot))prefs.mascot='pets';if(!prefs.focusConfigured){prefs.focus=true;prefs.focusConfigured=true;persist()}due.water=prefs.water*60;due.rest=prefs.rest*60;applyMascot();applyPosition();applyVisibility()});
   window.addEventListener('resize',applyPosition);
