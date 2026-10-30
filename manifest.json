@@ -1,14 +1,17 @@
 {
   "manifest_version": 3,
   "name": "Relief",
-  "version": "1.0.4",
-  "description": "目前支持 ChatGPT 的喝水与休息提醒扩展。",
+  "version": "1.0.5",
+  "description": "ChatGPT 页面陪伴提醒，并可快速发送到固定对话。",
   "permissions": ["storage", "activeTab", "scripting"],
   "host_permissions": ["https://chatgpt.com/*", "https://chat.openai.com/*"],
   "action": {
     "default_title": "Relief",
     "default_popup": "popup.html",
     "default_icon": "assets/mascot-mobile.png"
+  },
+  "background": {
+    "service_worker": "background.js"
   },
   "icons": {
     "16": "assets/mascot-mobile.png",
