@@ -1,0 +1,6 @@
+node_modules/
+desktop/release/
+desktop/ui/assets/mascot-mobile.png
+desktop/ui/assets/relief.ico
+*.log
+.DS_Store
