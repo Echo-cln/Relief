@@ -1,4 +1,9 @@
 const status=document.getElementById('status');
+let browserScopeEnabled=false;
+const scopeButton=document.getElementById('scope');
+function renderScope(){scopeButton.setAttribute('aria-checked',String(browserScopeEnabled));document.getElementById('scopeSummary').textContent=browserScopeEnabled?'普通网页均可显示':'仅在 ChatGPT 显示'}
+ReliefScope.enabled().then(value=>{browserScopeEnabled=value;renderScope();scopeButton.disabled=false}).catch(()=>{scopeButton.disabled=false});
+scopeButton.addEventListener('click',async()=>{if(scopeButton.disabled)return;scopeButton.disabled=true;status.textContent='';try{const result=await ReliefScope.setEnabled(!browserScopeEnabled);if(result.ok)browserScopeEnabled=result.enabled;status.textContent=result.message||'';renderScope()}catch{status.textContent='显示范围修改失败，请重试。'}finally{scopeButton.disabled=false}});
 const EXPECTED_CONTENT_VERSION=ReliefConfig.version;
 function reportResult(response,command){
   if(response?.version!==EXPECTED_CONTENT_VERSION){status.textContent='当前页面还没有加载最新 Relief。请先刷新 ChatGPT 页面，再打开 Relief。';return}
@@ -8,8 +13,8 @@ function reportResult(response,command){
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function send(command){
   const [tab]=await chrome.tabs.query({active:true,currentWindow:true});
-  if(!tab?.id||!/^https:\/\/(chatgpt\.com|chat\.openai\.com)\//.test(tab.url||'')){
-    if(command==='settings'){await chrome.runtime.openOptionsPage();return}status.textContent='请先打开 ChatGPT 页面。';return;
+  if(!tab?.id||!ReliefConfig.isWebPage(tab.url)||(!ReliefConfig.isChatGPT(tab.url)&&!browserScopeEnabled)){
+    if(command==='settings'){await chrome.runtime.openOptionsPage();return}status.textContent=browserScopeEnabled?'已恢复普通网页的形象；当前页面不支持注入。':'请打开 ChatGPT，或开启全页面陪伴。';return;
   }
   status.textContent='正在连接…';
   let injected=false,response;
@@ -31,5 +36,5 @@ async function send(command){
     if(command==='settings'){await chrome.runtime.openOptionsPage();return}status.textContent='请刷新 ChatGPT 页面后重试。';
   }
 }
-document.getElementById('toggle').addEventListener('click',()=>send('show'));
+document.getElementById('toggle').addEventListener('click',async()=>{try{await chrome.runtime.sendMessage({type:'relief-show-everywhere'});await send('show')}catch{status.textContent='无法显示形象，请重新加载扩展。'}});
 document.getElementById('settings').addEventListener('click',()=>send('settings'));
