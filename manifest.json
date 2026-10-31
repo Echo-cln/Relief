@@ -1,10 +1,17 @@
 {
   "manifest_version": 3,
   "name": "Relief",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "ChatGPT 页面陪伴提醒，并可快速发送到固定对话。",
-  "permissions": ["storage", "activeTab", "scripting"],
-  "host_permissions": ["https://chatgpt.com/*", "https://chat.openai.com/*"],
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*"
+  ],
   "action": {
     "default_title": "Relief",
     "default_popup": "popup.html",
@@ -20,15 +27,27 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://chatgpt.com/*", "https://chat.openai.com/*"],
-      "js": ["content.js"],
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*"
+      ],
+      "js": [
+        "config.js",
+        "content.js"
+      ],
       "run_at": "document_idle"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["assets/*.png"],
-      "matches": ["https://chatgpt.com/*", "https://chat.openai.com/*"]
+      "resources": [
+        "assets/*.png"
+      ],
+      "matches": [
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*"
+      ]
     }
-  ]
+  ],
+  "options_page": "settings.html"
 }
