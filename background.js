@@ -1,9 +1,11 @@
-importScripts('config.js','state.js');
+importScripts('config.js','state.js','scope-manager.js');
+if(chrome.scripting?.registerContentScripts&&chrome.permissions)ReliefScopeManager.install();
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 let stateQueue=Promise.resolve();
 async function stateAction(action,sender){
   const values=await chrome.storage.local.get([...Object.keys(ReliefConfig.defaults),'reliefState','reliefDailyActiveTimer']);
   const prefs=ReliefConfig.normalize(values),day=ReliefState.dayKey();
+  if(sender.tab?.url&&ReliefConfig.isWebPage(sender.tab.url)&&!ReliefConfig.isChatGPT(sender.tab.url)&&!prefs.allSitesEnabled)return{ok:false};
   let previous=values.reliefState;
   if(!previous){previous=ReliefState.fresh(day);if(values.reliefDailyActiveTimer?.date===day)previous.seconds=Math.max(0,Math.min(86400,Number(values.reliefDailyActiveTimer.seconds)||0))}
   const state=ReliefState.transition(previous,action,prefs,{now:Date.now(),day,tabId:sender.tab?.id??null});
@@ -46,6 +48,9 @@ async function sendToTarget(text,requestId){
   throw new Error(lastError+' 请检查目标会话。');
 }
 chrome.runtime.onMessage.addListener((message,sender,sendResponse)=>{
+  if(message?.type==='relief-set-scope'){ReliefScopeManager.setEnabled(!!message.enabled).then(sendResponse).catch(()=>sendResponse({ok:false,message:'显示范围设置失败。'}));return true}
+  if(message?.type==='relief-show-everywhere'){ReliefScopeManager.showEverywhere().then(sendResponse).catch(()=>sendResponse({ok:false}));return true}
+  if(message?.type==='relief-open-scope-settings'){chrome.tabs.create({url:chrome.runtime.getURL('settings.html#scope')}).then(()=>sendResponse({ok:true}));return true}
   if(message?.type==='relief-state'){
     const action=message.action||{};
     if(!['tick','manual','complete','snooze','pause','resume','read'].includes(action.kind)){sendResponse({ok:false});return}
@@ -53,10 +58,10 @@ chrome.runtime.onMessage.addListener((message,sender,sendResponse)=>{
     const job=stateQueue.then(()=>stateAction(action,sender));stateQueue=job.catch(()=>{});job.then(sendResponse).catch(()=>sendResponse({ok:false}));return true;
   }
   if(message?.type!=='relief-send-daily-qa')return;
-  if(!/^https:\/\/(chatgpt\.com|chat\.openai\.com)\//.test(sender.tab?.url||'')){sendResponse({ok:false,message:'请从 ChatGPT 页面使用快速聊天。'});return}
+  if(!ReliefConfig.isWebPage(sender.tab?.url||'')){sendResponse({ok:false,message:'请从普通网页使用快速提问。'});return}
   const text=typeof message.text==='string'?message.text.trim():'';
   if(!text||text.length>4000){sendResponse({ok:false,message:'请输入 1–4000 个字符。'});return}
   const requestId=typeof message.requestId==='string'?message.requestId:crypto.randomUUID();
-  const job=sendQueue.then(()=>sendToTarget(text,requestId));sendQueue=job.catch(()=>{});
+  const job=sendQueue.then(async()=>{if(!ReliefConfig.isChatGPT(sender.tab.url)){const stored=await chrome.storage.local.get('allSitesEnabled');if(!stored.allSitesEnabled||!await chrome.permissions.contains({origins:ReliefScopeManager.origins}))throw new Error('请先开启浏览器全页面陪伴。')}return sendToTarget(text,requestId)});sendQueue=job.catch(()=>{});
   job.then(sendResponse).catch(error=>sendResponse({ok:false,message:error.message||'发送失败，请重试。'}));return true;
 });
