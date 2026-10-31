@@ -1,6 +1,8 @@
 const {contextBridge,ipcRenderer}=require('electron');
 contextBridge.exposeInMainWorld('reliefDesktop',{
  getState:()=>ipcRenderer.invoke('relief:get-state'),
+ weather:city=>ipcRenderer.invoke('relief:weather',city),
+ resizeWidget:size=>ipcRenderer.invoke('relief:resize-widget',size),
  command:action=>ipcRenderer.invoke('relief:command',action),
  window:action=>ipcRenderer.invoke('relief:window',action),
  bridgeCode:()=>ipcRenderer.invoke('relief:bridge-code'),
