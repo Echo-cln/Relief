@@ -6,5 +6,5 @@
   function normalize(values={}){const p={...defaults,...values};for(const k of ['water','rest'])p[k]=number(p[k],1,240,defaults[k]);p.snooze=number(p.snooze,1,120,10);for(const k of ['waterFocusSeconds','restFocusSeconds'])p[k]=number(p[k],1,600,defaults[k]);p.targetUrl=conversationUrl(p.targetUrl)||defaults.targetUrl;p.targetName=String(p.targetName||defaults.targetName).trim().slice(0,40);return p}
   const isChatGPT=value=>{try{const u=new URL(value);return u.protocol==='https:'&&['chatgpt.com','chat.openai.com'].includes(u.hostname)}catch{return false}};
   const isWebPage=value=>{try{const u=new URL(value);return ['http:','https:'].includes(u.protocol)&&u.hostname!=='chromewebstore.google.com'&&!(u.hostname==='chrome.google.com'&&u.pathname.startsWith('/webstore'))&&!(u.hostname==='microsoftedge.microsoft.com'&&u.pathname.startsWith('/addons'))}catch{return false}};
-  globalThis.ReliefConfig={version:'1.3.0',defaults,number,normalize,conversationUrl,isChatGPT,isWebPage};
+  globalThis.ReliefConfig={version:'1.4.0',defaults,number,normalize,conversationUrl,isChatGPT,isWebPage};
 })();
