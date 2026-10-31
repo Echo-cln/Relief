@@ -1,4 +1,5 @@
-importScripts('config.js','state.js','scope-manager.js');
+importScripts('config.js','state.js','scope-manager.js','desktop-bridge.js');
+ReliefDesktopBridge.install();
 if(chrome.scripting?.registerContentScripts&&chrome.permissions)ReliefScopeManager.install();
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 let stateQueue=Promise.resolve();
