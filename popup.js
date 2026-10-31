@@ -1,5 +1,5 @@
 const status=document.getElementById('status');
-const EXPECTED_CONTENT_VERSION='1.1.0';
+const EXPECTED_CONTENT_VERSION=ReliefConfig.version;
 function reportResult(response,command){
   if(response?.version!==EXPECTED_CONTENT_VERSION){status.textContent='当前页面还没有加载最新 Relief。请先刷新 ChatGPT 页面，再打开 Relief。';return}
   if(!response.ok||!response.visible){status.textContent='Relief 已尝试显示，但页面没有确认到可见界面。请重新加载扩展后刷新 ChatGPT。';return}
@@ -9,7 +9,7 @@ const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 async function send(command){
   const [tab]=await chrome.tabs.query({active:true,currentWindow:true});
   if(!tab?.id||!/^https:\/\/(chatgpt\.com|chat\.openai\.com)\//.test(tab.url||'')){
-    status.textContent='请先打开 ChatGPT 页面。';return;
+    if(command==='settings'){await chrome.runtime.openOptionsPage();return}status.textContent='请先打开 ChatGPT 页面。';return;
   }
   status.textContent='正在连接…';
   let injected=false,response;
@@ -21,14 +21,14 @@ async function send(command){
         if(response?.version&&response.version!==EXPECTED_CONTENT_VERSION)break;
       }catch(error){
         if(injected)throw error;
-        await chrome.scripting.executeScript({target:{tabId:tab.id},files:['content.js']});
+        await chrome.scripting.executeScript({target:{tabId:tab.id},files:['config.js','content.js']});
         injected=true;
       }
       await wait(150);
     }
-    reportResult(response,command);
+    if(command==='settings'){await chrome.runtime.openOptionsPage();status.textContent='已打开陪伴设置。';return}reportResult(response,command);
   }catch(error){
-    status.textContent='无法确认页面组件已更新。请刷新 ChatGPT 页面后重试。';
+    if(command==='settings'){await chrome.runtime.openOptionsPage();return}status.textContent='请刷新 ChatGPT 页面后重试。';
   }
 }
 document.getElementById('toggle').addEventListener('click',()=>send('show'));
