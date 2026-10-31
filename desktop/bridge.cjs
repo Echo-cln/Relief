@@ -9,11 +9,11 @@ function createBridge({store,token,port=PORT,openTask=()=>{},onPoll=()=>{},getSt
   if(origin&&!/^chrome-extension:\/\/[a-p]{32}$/.test(origin))return json(403,{error:'Origin not allowed'});
   if(origin){res.setHeader('Access-Control-Allow-Origin',origin);res.setHeader('Vary','Origin')}
   if(req.method==='OPTIONS'){res.writeHead(204,{'Access-Control-Allow-Headers':'Authorization, Content-Type','Access-Control-Allow-Methods':'GET, POST, OPTIONS','Access-Control-Max-Age':'600'});return res.end()}
-  if(req.url==='/health'&&req.method==='GET')return json(200,{app:'Relief Desktop',version:'0.1.0'});
+  if(req.url==='/health'&&req.method==='GET')return json(200,{app:'Relief Desktop',version:'0.2.0'});
   if(!equal(req.headers.authorization))return json(401,{error:'Connection code required'});
   if(!store.state.settings.bridgeEnabled)return json(403,{error:'Browser bridge is disabled'});
   try{
-   if(req.method==='GET'&&req.url==='/v1/status')return json(200,{app:'Relief Desktop',version:'0.1.0',taskCount:store.state.tasks.filter(t=>!t.deletedAt&&!t.completed).length,...getStatus()});
+   if(req.method==='GET'&&req.url==='/v1/status')return json(200,{app:'Relief Desktop',version:'0.2.0',taskCount:store.state.tasks.filter(t=>!t.deletedAt&&!t.completed).length,...getStatus()});
    if(req.method==='GET'&&req.url==='/v1/reminders/due'){onPoll();return json(200,{reminders:Model.dueReminders(store.get())})}
    if(req.method!=='POST')return json(404,{error:'Not found'});
    let body='',large=false;for await(const chunk of req){body+=chunk;if(Buffer.byteLength(body)>16384){large=true;break}}if(large)return json(413,{error:'Request too large'});
