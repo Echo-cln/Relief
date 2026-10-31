@@ -1,6 +1,6 @@
 {
   "name": "relief-desktop",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Relief desktop tasks, calendar, transparent checklist and browser deadline reminders",
   "author": "Echo-cln",
@@ -18,9 +18,10 @@
   "devDependencies": {
     "electron": "45.2.1",
     "electron-builder": "26.18.1",
+    "lunar-javascript": "^1.7.7",
+    "pe-library": "0.4.1",
     "png-to-ico": "3.0.1",
-    "resedit": "1.7.2",
-    "pe-library": "0.4.1"
+    "resedit": "1.7.2"
   },
   "build": {
     "appId": "com.echo.relief",
