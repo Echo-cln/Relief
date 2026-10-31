@@ -1,0 +1,61 @@
+{
+  "name": "relief-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Relief desktop tasks, calendar, transparent checklist and browser deadline reminders",
+  "author": "Echo-cln",
+  "main": "main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test tests/*.test.cjs",
+    "dist:win": "node scripts/prepare-assets.cjs && electron-builder --win nsis portable --x64",
+    "preview": "node scripts/preview.cjs",
+    "prestart": "node scripts/prepare-assets.cjs",
+    "pack:win": "node scripts/prepare-assets.cjs && electron-builder --win --dir --x64",
+    "build:preview": "node scripts/prepare-assets.cjs && node scripts/bundle-preview.cjs",
+    "prepreview": "node scripts/prepare-assets.cjs"
+  },
+  "devDependencies": {
+    "electron": "45.2.1",
+    "electron-builder": "26.18.1",
+    "png-to-ico": "3.0.1",
+    "resedit": "1.7.2",
+    "pe-library": "0.4.1"
+  },
+  "build": {
+    "appId": "com.echo.relief",
+    "productName": "Relief",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "model.js",
+      "store.cjs",
+      "bridge.cjs",
+      "seed.json",
+      "ui/**/*",
+      "package.json",
+      "seed.js"
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "signAndEditExecutable": false,
+      "icon": "ui/assets/relief.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "Relief-Desktop-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "Relief-Desktop-Portable-${version}.${ext}"
+    },
+    "afterPack": "scripts/after-pack.cjs"
+  }
+}
