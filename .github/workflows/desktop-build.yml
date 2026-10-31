@@ -1,0 +1,33 @@
+name: Relief Desktop Windows
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['desktop/**', 'assets/mascot-mobile.png', '.github/workflows/desktop-build.yml']
+permissions:
+  contents: read
+jobs:
+  windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run dist:win
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Relief-Desktop-Windows-0.1.0
+          path: |
+            desktop/release/Relief-Desktop-Setup-*.exe
+            desktop/release/Relief-Desktop-Portable-*.exe
+          if-no-files-found: error
